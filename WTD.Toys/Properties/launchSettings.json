@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "WTD.Toys": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
+    },
+    "WTD.Toys BrowserSwitch": {
+      "commandName": "Project",
+      "commandLineArgs": "https://uptobox.com/jpg08drap1bq",
+      "remoteDebugEnabled": false
+    }
+  }
+}
