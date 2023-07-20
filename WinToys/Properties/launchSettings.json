@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "WinToys": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
+    },
+    "WinToys BrowserSwitch": {
+      "commandName": "Project",
+      "commandLineArgs": "https://uptobox.com/jpg08drap1bq",
+      "remoteDebugEnabled": false
+    }
+  }
+}
