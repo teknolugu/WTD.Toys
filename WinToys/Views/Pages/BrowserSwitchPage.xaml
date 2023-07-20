@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:pages="clr-namespace:WinToys.Views.Pages"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     Title="BrowserSwitchPage"
     d:Background="{DynamicResource ApplicationBackgroundBrush}"
     d:DataContext="{d:DesignInstance pages:BrowserSwitchPage,
@@ -19,10 +19,11 @@
             Margin="20,10,0,0"
             VerticalAlignment="Top"
             Command="{Binding ViewModel.RegisterBrowserCommand}"
-            Content="Enable BrowserSwitcher"
+            Content="Enable BrowserSwitch"
             IsChecked="{Binding ViewModel.IsRegistered}" />
         <Button
-            Margin="720,10,20,10"
+            Width="90"
+            Margin="0,10,20,0"
             HorizontalAlignment="Right"
             VerticalAlignment="Top"
             Command="{Binding ViewModel.RefreshBrowserCommand}"
@@ -38,7 +39,7 @@
                             <ui:CardAction Margin="2">
                                 <Grid>
                                     <!-- <ui:CardExpander Header="{Binding}"> -->
-                                        <TextBlock Text="{Binding}" />
+                                    <TextBlock Text="{Binding}" />
                                     <!-- </ui:CardExpander> -->
                                 </Grid>
                             </ui:CardAction>

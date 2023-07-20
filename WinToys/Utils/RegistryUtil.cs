@@ -1,9 +1,25 @@
 ﻿using Microsoft.Win32;
+using WinToys.Models;
 
 namespace WinToys.Utils;
 
 public static class RegistryUtil
 {
+    public static void IntegrateBrowserSwitcher(bool isRegister)
+    {
+        const string AppName = "WinToys Browser Switcher";
+        const string AppId = "WinToys.BrowserSwitcher";
+
+        if (isRegister)
+        {
+            SetDefaultBrowser(AppName, EnvVar.ExePath, AppId, "Let Toys help select right browser for you.");
+        }
+        else
+        {
+            UnRegisterBrowser(AppName, AppId);
+        }
+    }
+
     public static void SetDefaultBrowser(string appName, string appPath, string appId, string appDescription)
     {
         var software = "SOFTWARE\\" + appName;
@@ -82,12 +98,5 @@ public static class RegistryUtil
 
         Registry.LocalMachine.DeleteSubKeyTree(startMenuInternet);
         Registry.LocalMachine.DeleteSubKeyTree(classes);
-        // Registry.ClassesRoot.DeleteSubKeyTree(appId);
-
-        // Registry.LocalMachine.OpenSubKey(fileAssociations)?.DeleteValue(".htm");
-        // Registry.LocalMachine.OpenSubKey(fileAssociations)?.DeleteValue(".html");
-        // Registry.LocalMachine.OpenSubKey(fileAssociations)?.DeleteValue(".shtml");
-        // Registry.LocalMachine.OpenSubKey(fileAssociations)?.DeleteValue(".xhtml");
-        // Registry.LocalMachine.OpenSubKey(fileAssociations)?.DeleteValue(".xht");
     }
 }

@@ -38,14 +38,7 @@ public partial class BrowserSwitchViewModel : ObservableObject, INavigationAware
     [RelayCommand]
     private void OnRegisterBrowser()
     {
-        if (IsRegistered)
-        {
-            RegistryUtil.SetDefaultBrowser(AppName, _exeName, AppId, "Let Toys help select right browser for you.");
-        }
-        else
-        {
-            RegistryUtil.UnRegisterBrowser(AppName, AppId);
-        }
+        RegistryUtil.IntegrateBrowserSwitcher(IsRegistered);
     }
 
     [RelayCommand]

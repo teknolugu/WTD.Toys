@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.Hosting;
+using WinToys.Utils;
 using WinToys.Views.Pages;
 using WinToys.Views.Windows;
 using Wpf.Ui.Mvvm.Contracts;
@@ -53,8 +53,7 @@ public class ApplicationHostService : IHostedService
 
         if (args.Any(x => x.Contains("http")))
         {
-            Process.Start(@"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", args.LastOrDefault("http"));
-            Application.Current.Shutdown(0);
+            ProcessUtil.DirectBrowserSwitch();
         }
         else if (!Application.Current.Windows.OfType<MainWindow>().Any())
         {
