@@ -47,6 +47,16 @@
                     Width="2*"
                     Binding="{Binding Url}"
                     Header="Url" />
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ui:Button
+                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type ui:UiPage}}, Path=ViewModel.DeleteMapCommand}"
+                                CommandParameter="{Binding Id}"
+                                Content="Delete" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
         <TextBlock
@@ -55,7 +65,7 @@
             HorizontalAlignment="Left"
             VerticalAlignment="Top"
             FontSize="24"
-            Text="{Binding ViewModel.SelectedBrowser, StringFormat={}Path: {0}}"/>
+            Text="{Binding ViewModel.SelectedBrowser, StringFormat={}Path: {0}}" />
         <Button
             Margin="640,10,10,10"
             HorizontalAlignment="Right"

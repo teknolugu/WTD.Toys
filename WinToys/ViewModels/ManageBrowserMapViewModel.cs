@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MongoDB.Bson;
 using WinToys.DataSource.Entities.Realm;
 using WinToys.DataSource.Repository;
 using WinToys.Models.Enums;
@@ -53,6 +54,15 @@ public partial class ManageBrowserMapViewModel : ObservableObject, INavigationAw
         if (obj is DataGridRowEditEndingEventArgs rowEditEndingEventArgs)
         {
         }
+    }
+
+    [RelayCommand]
+    private void DeleteMap(ObjectId? id)
+    {
+        if (id == null) return;
+
+        BrowserSwitchRepository.DeleteMapById(id);
+        OnNavigatedTo();
     }
 
     [RelayCommand]

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MongoDB.Bson;
 using WinToys.DataSource.Entities.Realm;
 using WinToys.Models.Enums;
 using WinToys.Utils;
@@ -55,6 +56,16 @@ internal static class BrowserSwitchRepository
         realm.Write(() =>
         {
             realm.Add(data);
+        });
+    }
+
+    public static void DeleteMapById(ObjectId? id)
+    {
+        var realm = RealmUtil.GetInstance();
+
+        realm.Write(() =>
+        {
+            realm.Remove(realm.Find<BrowserMap>(id));
         });
     }
 }
