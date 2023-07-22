@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using WinToys.Models;
 using WinToys.Services;
 using WinToys.ViewModels;
@@ -48,6 +49,13 @@ public partial class App
             {
                 c.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location));
             })
+            .ConfigureLogging((context, builder) =>
+            {
+                builder.AddSentry(options =>
+                {
+                    options.Dsn = "https://6d80e3bff4104600a623df0426966e5c@o192382.ingest.sentry.io/4505559666655232";
+                });
+            })
             .ConfigureServices((context, services) =>
             {
                 // App Host
@@ -78,6 +86,10 @@ public partial class App
                 services.AddScoped<SettingsViewModel>();
                 services.AddScoped<BrowserSwitchPage>();
                 services.AddScoped<BrowserSwitchViewModel>();
+                services.AddScoped<ManageBrowserMapPage>();
+                services.AddScoped<ManageBrowserMapViewModel>();
+
+                services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(App).Assembly));
 
                 // Configuration
                 services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));

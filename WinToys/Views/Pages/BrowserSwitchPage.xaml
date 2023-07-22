@@ -36,8 +36,12 @@
                         <StackPanel
                             Margin="5"
                             HorizontalAlignment="Stretch">
-                            <ui:CardAction Margin="2">
+                            <ui:CardAction
+                                Margin="2"
+                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type ui:UiPage}}, Path=ViewModel.OpenEditPageCommand}"
+                                CommandParameter="{Binding}">
                                 <Grid>
+                                    <ui:Button />
                                     <!-- <ui:CardExpander Header="{Binding}"> -->
                                     <TextBlock Text="{Binding}" />
                                     <!-- </ui:CardExpander> -->

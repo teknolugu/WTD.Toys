@@ -16,7 +16,11 @@
 
   <ItemGroup>
     <PackageReference Include="Config.Net" Version="5.1.5" />
+    <PackageReference Include="MediatR" Version="12.1.1" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
     <PackageReference Include="MintPlayer.PlatformBrowser" Version="7.0.1" />
+    <PackageReference Include="Realm" Version="11.2.0" />
+    <PackageReference Include="Sentry.Extensions.Logging" Version="3.34.0" />
     <PackageReference Include="WPF-UI" Version="2.0.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />

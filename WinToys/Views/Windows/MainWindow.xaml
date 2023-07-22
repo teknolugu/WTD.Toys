@@ -9,13 +9,15 @@
     Title="{Binding ViewModel.ApplicationTitle, Mode=OneWay}"
     Width="1100"
     Height="650"
+    MinWidth="650"
+    MinHeight="500"
     d:Background="{DynamicResource ApplicationBackgroundBrush}"
     d:DataContext="{d:DesignInstance windows:MainWindow,
                                      IsDesignTimeCreatable=True}"
     ExtendsContentIntoTitleBar="True"
     Foreground="{DynamicResource TextFillColorPrimaryBrush}"
     WindowBackdropType="Mica"
-    WindowCornerPreference="Round"
+    WindowCornerPreference="DoNotRound"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Grid>
