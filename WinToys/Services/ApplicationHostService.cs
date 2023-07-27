@@ -55,6 +55,10 @@ public class ApplicationHostService : IHostedService
         {
             ProcessUtil.DirectBrowserSwitch();
         }
+        else if (args.Any(x => x.Contains("browser-map")))
+        {
+            RegistryUtil.ReadArgs(args);
+        }
         else if (!Application.Current.Windows.OfType<MainWindow>().Any())
         {
             _navigationWindow = (_serviceProvider.GetService(typeof(INavigationWindow)) as INavigationWindow)!;

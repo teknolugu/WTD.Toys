@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using WinToys.Views.Pages;
 using Wpf.Ui.Common;
@@ -14,7 +13,7 @@ public partial class MainWindowViewModel : ObservableObject
     private bool _isInitialized = false;
 
     [ObservableProperty]
-    private string _applicationTitle = String.Empty;
+    private string _applicationTitle = string.Empty;
 
     [ObservableProperty]
     private ObservableCollection<INavigationControl> _navigationItems = new();
@@ -42,13 +41,13 @@ public partial class MainWindowViewModel : ObservableObject
                 Content = "Home",
                 PageTag = "dashboard",
                 Icon = SymbolRegular.Home24,
-                PageType = typeof(Views.Pages.DashboardPage)
+                PageType = typeof(DashboardPage)
             },
             new NavigationItem()
             {
-                Content = "BrowserSwitch",
-                PageTag = "browser-switch",
-                Icon = SymbolRegular.System20,
+                Content = "BrowserMap",
+                PageTag = "browser-map",
+                Icon = SymbolRegular.Directions24,
                 PageType = typeof(BrowserSwitchPage)
             },
             new NavigationItem()
@@ -56,7 +55,7 @@ public partial class MainWindowViewModel : ObservableObject
                 Content = "Data",
                 PageTag = "data",
                 Icon = SymbolRegular.DataHistogram24,
-                PageType = typeof(Views.Pages.DataPage)
+                PageType = typeof(DataPage)
             }
         };
 
@@ -67,13 +66,13 @@ public partial class MainWindowViewModel : ObservableObject
                 Content = "Settings",
                 PageTag = "settings",
                 Icon = SymbolRegular.Settings24,
-                PageType = typeof(Views.Pages.SettingsPage)
+                PageType = typeof(SettingsPage)
             }
         };
 
         TrayMenuItems = new ObservableCollection<MenuItem>
         {
-            new MenuItem
+            new()
             {
                 Header = "Home",
                 Tag = "tray_home"

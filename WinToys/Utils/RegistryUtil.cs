@@ -1,96 +1,160 @@
-﻿using Microsoft.Win32;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using Microsoft.Win32;
+using Serilog;
 using WinToys.Models;
 
 namespace WinToys.Utils;
 
 public static class RegistryUtil
 {
+    private const string AppName = "WinToys Browser Switcher";
+    private const string AppId = "WinToys.BrowserSwitcher";
+    private const string AppDescription = "Let Toys help select right browser for you.";
+
     public static void IntegrateBrowserSwitcher(bool isRegister)
     {
-        const string AppName = "WinToys Browser Switcher";
-        const string AppId = "WinToys.BrowserSwitcher";
+        Log.Information("Checking privilege..");
 
-        if (isRegister)
+        if (ProcessUtil.IsAdministrator())
         {
-            SetDefaultBrowser(AppName, EnvVar.ExePath, AppId, "Let Toys help select right browser for you.");
+            if (isRegister)
+                SetDefaultBrowser();
+            // RegisterBrowser2();
+            else
+                UnRegisterBrowser();
         }
         else
         {
-            UnRegisterBrowser(AppName, AppId);
+            ProcessUtil.RestartAppAsAdmin(!isRegister ? "remove-browser-map" : "add-browser-map");
         }
     }
 
-    public static void SetDefaultBrowser(string appName, string appPath, string appId, string appDescription)
+    public static void ReadArgs(List<string> args)
     {
-        var software = "SOFTWARE\\" + appName;
-        var startMenuInternet = @"SOFTWARE\Clients\StartMenuInternet\" + appName;
+        var payload = args.FirstOrDefault();
+
+        if (payload.Contains("add"))
+            RegisterBrowser2();
+        else
+            UnRegisterBrowser();
+
+        Application.Current.Shutdown(0);
+    }
+
+    private static void SetDefaultBrowser()
+    {
+        Log.Information("Registering WinToys for HTTP handler..");
+
+        var software = "SOFTWARE\\" + AppName;
+        var startMenuInternet = @"SOFTWARE\Clients\StartMenuInternet\" + AppName;
         var capabilities = startMenuInternet + "\\Capabilities";
         var fileAssociations = capabilities + "\\FileAssociations";
         var startMenu = capabilities + "\\Startmenu";
         var urlAssociation = capabilities + "\\URLAssociations";
 
-        Registry.LocalMachine.CreateSubKey(startMenuInternet).SetValue("", appName);
-        Registry.LocalMachine.CreateSubKey(startMenuInternet).SetValue("LocalizedString", "@" + appPath);
-        Registry.LocalMachine.CreateSubKey(capabilities).SetValue("ApplicationDescription", appDescription);
-        Registry.LocalMachine.CreateSubKey(capabilities).SetValue("ApplicationIcon", appPath + ",0");
-        Registry.LocalMachine.CreateSubKey(capabilities).SetValue("ApplicationName", appName);
-        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".htm", appId);
-        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".html", appId);
-        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".shtml", appId);
-        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".xhtml", appId);
-        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".xht", appId);
-        Registry.LocalMachine.CreateSubKey(startMenu).SetValue("StartMenuInternet", appName);
-        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("ftp", appId);
-        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("http", appId);
-        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("https", appId);
-        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("mailto", appId);
-        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("webcal", appId);
-        Registry.LocalMachine.CreateSubKey(startMenuInternet + "\\DefaultIcon").SetValue("", appPath + ",0");
-        Registry.LocalMachine.CreateSubKey(startMenuInternet + "\\InstallInfo").SetValue("", "");
-        Registry.LocalMachine.CreateSubKey(startMenuInternet + @"\shell\open\command").SetValue("", "\"" + appPath + "\"");
-        Registry.LocalMachine.CreateSubKey(startMenuInternet + "\\DefaultIcon").SetValue("", appPath + ",0");
-        Registry.LocalMachine.CreateSubKey(startMenuInternet + @"\shell\open\command").SetValue("", appPath);
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\.htm\OpenWithProgIds").SetValue(appId, "");
-        Registry.LocalMachine.CreateSubKey(software + "\\Capabilities").SetValue("ApplicationDescription", appDescription);
-        Registry.LocalMachine.CreateSubKey(software + "\\Capabilities").SetValue("ApplicationName", appId);
-        Registry.LocalMachine.CreateSubKey(software + "\\Capabilities").SetValue("ApplicationIcon", appPath);
-        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".htm", appId);
-        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".html", appId);
-        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".shtml", appId);
-        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".xhtml", appId);
-        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".xht", appId);
-        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\Startmenu").SetValue("StartmenuInternet", appPath);
-        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\UrlAssociations").SetValue("ftp", appId);
-        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\UrlAssociations").SetValue("http", appId);
-        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\UrlAssociations").SetValue("https", appId);
-        Registry.LocalMachine.CreateSubKey("SOFTWARE\\RegisteredApplications").SetValue(appName, software + "\\Capabilities");
-        Registry.LocalMachine.CreateSubKey("SOFTWARE\\RegisteredApplications").SetValue(appName, capabilities);
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + appId).SetValue("FriendlyTypeName", appName);
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + appId).SetValue("Editflags", 2);
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + appId + "\\DefaultIcon").SetValue("", appPath + ",0");
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + appId + @"\shell\open\command").SetValue("", "\"" + appPath + "\"%1");
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + appId).SetValue("FriendlyTypeName", appName);
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + appId).SetValue("Editflags", 2);
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + appId + "\\DefaultIcon").SetValue("", appPath + ",0");
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + appId + @"\shell\open\command").SetValue("", "\"" + appPath + "\"%1");
-        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\MDK\" + appId + "\\Capabilities").SetValue("ApplicationName", appName);
+        Registry.LocalMachine.CreateSubKey(startMenuInternet).SetValue("", AppName);
+        Registry.LocalMachine.CreateSubKey(startMenuInternet).SetValue("LocalizedString", EnvVar.ExePath);
+        Registry.LocalMachine.CreateSubKey(capabilities).SetValue("ApplicationDescription", AppDescription);
+        Registry.LocalMachine.CreateSubKey(capabilities).SetValue("ApplicationIcon", EnvVar.ExePath + ",0");
+        Registry.LocalMachine.CreateSubKey(capabilities).SetValue("ApplicationName", AppName);
+        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".htm", AppId);
+        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".html", AppId);
+        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".shtml", AppId);
+        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".xhtml", AppId);
+        Registry.LocalMachine.CreateSubKey(fileAssociations).SetValue(".xht", AppId);
+        Registry.LocalMachine.CreateSubKey(startMenu).SetValue("StartMenuInternet", AppName);
+        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("ftp", AppId);
+        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("http", AppId);
+        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("https", AppId);
+        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("mailto", AppId);
+        Registry.LocalMachine.CreateSubKey(urlAssociation).SetValue("webcal", AppId);
+        Registry.LocalMachine.CreateSubKey(startMenuInternet + @"\DefaultIcon").SetValue("", EnvVar.ExePath + ",0");
+        Registry.LocalMachine.CreateSubKey(startMenuInternet + @"\InstallInfo").SetValue("", "");
 
-        Registry.CurrentUser.CreateSubKey("SOFTWARE\\RegisteredApplications").SetValue(appName, software + "\\Capabilities");
-        Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\" + appName + ".exe").SetValue("Path", appPath);
+        Registry.LocalMachine.CreateSubKey(startMenuInternet + @"\shell\open\command")
+            .SetValue("", $"\"{EnvVar.ExePath}\"");
 
-        Registry.ClassesRoot.CreateSubKey(appId + "\\DefaultIcon").SetValue("", appPath + ",0");
-        Registry.ClassesRoot.CreateSubKey(appId + @"\shell\open\command").SetValue("", "\"" + appPath + "\"%1");
-        Registry.ClassesRoot.CreateSubKey(appId).SetValue("AppUserModelId", appName);
-        Registry.ClassesRoot.CreateSubKey(appId + "\\Application").SetValue("ApplicationDescription", appDescription);
-        Registry.ClassesRoot.CreateSubKey(appId + "\\Application").SetValue("ApplicationName", appName);
-        Registry.ClassesRoot.CreateSubKey(appId + "\\Application").SetValue("ApplicationIcon", appPath);
+        Registry.LocalMachine.CreateSubKey(startMenuInternet + @"\DefaultIcon").SetValue("", EnvVar.ExePath + ",0");
+        Registry.LocalMachine.CreateSubKey(startMenuInternet + @"\shell\open\command").SetValue("", EnvVar.ExePath);
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\.htm\OpenWithProgIds").SetValue(AppId, "");
+
+        Registry.LocalMachine.CreateSubKey(software + "\\Capabilities")
+            .SetValue("ApplicationDescription", AppDescription);
+
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities").SetValue("ApplicationName", AppName);
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities").SetValue("ApplicationIcon", EnvVar.ExePath);
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".htm", AppName);
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".html", AppName);
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".shtml", AppName);
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".xhtml", AppName);
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\FileAssociations").SetValue(".xht", AppName);
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\UrlAssociations").SetValue("ftp", AppName);
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\UrlAssociations").SetValue("http", AppName);
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\UrlAssociations").SetValue("https", AppName);
+
+        Registry.LocalMachine.CreateSubKey(software + @"\Capabilities\Startmenu")
+            .SetValue("StartmenuInternet", EnvVar.ExePath);
+
+        Registry.LocalMachine.CreateSubKey("SOFTWARE\\RegisteredApplications")
+            .SetValue(AppName, $"{software}\\Capabilities");
+
+        Registry.LocalMachine.CreateSubKey("SOFTWARE\\RegisteredApplications").SetValue(AppName, capabilities);
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + AppId).SetValue("FriendlyTypeName", AppName);
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + AppId).SetValue("Editflags", 2);
+
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + AppId + "\\DefaultIcon")
+            .SetValue("", $"{EnvVar.ExePath},0");
+
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + AppId + @"\shell\open\command")
+            .SetValue("", $"{EnvVar.ExePath} %1");
+
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + AppId).SetValue("FriendlyTypeName", AppName);
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + AppId).SetValue("Editflags", 2);
+
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + AppId + "\\DefaultIcon")
+            .SetValue("", $"{EnvVar.ExePath},0");
+
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Classes\" + AppId + @"\shell\open\command")
+            .SetValue("", $"{EnvVar.ExePath} %1");
+
+        Registry.LocalMachine.CreateSubKey(@"SOFTWARE\MDK\" + AppId + "\\Capabilities")
+            .SetValue("ApplicationName", AppName);
+
+        Registry.CurrentUser.CreateSubKey("SOFTWARE\\RegisteredApplications")
+            .SetValue(AppName, software + "\\Capabilities");
+
+        Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\" + AppName + ".exe")
+            .SetValue("Path", EnvVar.ExePath);
+
+        Registry.ClassesRoot.CreateSubKey(AppId).SetValue("AppUserModelId", AppName);
+        Registry.ClassesRoot.CreateSubKey(AppId + "\\DefaultIcon").SetValue("", $"{EnvVar.ExePath},0");
+        Registry.ClassesRoot.CreateSubKey(AppId + @"\shell\open\command").SetValue("", $"{EnvVar.ExePath} %1");
+        Registry.ClassesRoot.CreateSubKey(AppId + "\\Application").SetValue("ApplicationDescription", AppDescription);
+        Registry.ClassesRoot.CreateSubKey(AppId + "\\Application").SetValue("ApplicationName", AppName);
+        Registry.ClassesRoot.CreateSubKey(AppId + "\\Application").SetValue("ApplicationIcon", EnvVar.ExePath);
+
+        Log.Information("Register BrowserMap completed successfully..");
     }
 
-    public static void UnRegisterBrowser(string appName, string appId)
+    private static void RegisterBrowser2()
     {
-        var software = "SOFTWARE\\" + appName;
-        var classes = @"SOFTWARE\Classes\" + appId;
-        var startMenuInternet = @"SOFTWARE\Clients\StartMenuInternet\" + appName;
+        Registry.ClassesRoot.CreateSubKey(AppId).SetValue("AppUserModelId", AppName);
+        Registry.ClassesRoot.CreateSubKey(AppId + "\\DefaultIcon").SetValue("", EnvVar.ExePath + ",0");
+        Registry.ClassesRoot.CreateSubKey(AppId + "\\Application").SetValue("ApplicationDescription", AppDescription);
+        Registry.ClassesRoot.CreateSubKey(AppId + "\\Application").SetValue("ApplicationName", AppName);
+        Registry.ClassesRoot.CreateSubKey(AppId + "\\Application").SetValue("ApplicationIcon", EnvVar.ExePath + ",0");
+        Registry.ClassesRoot.CreateSubKey(AppId + "\\shell\\open\\command").SetValue("", $"{EnvVar.ExePath} %1");
+    }
+
+    private static void UnRegisterBrowser()
+    {
+        Log.Information("Unregistering WinToys from Http handler..");
+
+        var software = "SOFTWARE\\" + AppName;
+        var classes = @"SOFTWARE\Classes\" + AppId;
+        var startMenuInternet = @"SOFTWARE\Clients\StartMenuInternet\" + AppName;
         var capabilities = startMenuInternet + "\\Capabilities";
         var fileAssociations = capabilities + "\\FileAssociations";
         var startMenu = capabilities + "\\Startmenu";

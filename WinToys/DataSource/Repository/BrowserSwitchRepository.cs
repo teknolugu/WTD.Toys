@@ -49,6 +49,18 @@ internal static class BrowserSwitchRepository
         return activeBrowserPaths;
     }
 
+    public static BrowserMap? SelectBrowserMap(string url)
+    {
+        var browserMaps = RealmUtil.GetInstance()
+            .All<BrowserMap>()
+            .ToList();
+
+        var browserMapX = browserMaps.Where(x => url.Contains(x.Url));
+        var browserMap = browserMaps.FirstOrDefault(x => url.Contains(x.Url));
+
+        return browserMap;
+    }
+
     public static void SaveUrl(BrowserMap data)
     {
         var realm = RealmUtil.GetInstance();
