@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
@@ -6,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
 using WinToys.Models;
 using WinToys.Services;
 using WinToys.ViewModels;
@@ -44,56 +47,71 @@ public partial class App
     /// </summary>
     private async void OnStartup(object sender, StartupEventArgs e)
     {
-        _host = Host.CreateDefaultBuilder(e.Args)
-            .ConfigureAppConfiguration(c =>
-            {
-                c.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location));
-            })
-            .ConfigureLogging((context, builder) =>
-            {
-                builder.AddSentry(options =>
-                {
-                    options.Dsn = "https://6d80e3bff4104600a623df0426966e5c@o192382.ingest.sentry.io/4505559666655232";
-                });
-            })
-            .ConfigureServices((context, services) =>
-            {
-                // App Host
-                services.AddHostedService<ApplicationHostService>();
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Verbose()
+            .Enrich.FromLogContext()
+            .WriteTo.File(
+                Path.Combine(EnvVar.AppDataDir, "Logs/Log-.log"),
+                flushToDiskInterval: TimeSpan.FromSeconds(2),
+                rollingInterval: RollingInterval.Day,
+                restrictedToMinimumLevel: LogEventLevel.Verbose
+            )
+            .CreateLogger();
 
-                // Page resolver service
-                services.AddSingleton<IPageService, PageService>();
+        var applicationBuilder = Host.CreateApplicationBuilder(e.Args);
 
-                // Theme manipulation
-                services.AddSingleton<IThemeService, ThemeService>();
+        applicationBuilder.Environment.EnvironmentName = "Development";
 
-                // TaskBar manipulation
-                services.AddSingleton<ITaskBarService, TaskBarService>();
+        applicationBuilder.Configuration.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location));
+        applicationBuilder.Logging.SetMinimumLevel(LogLevel.Trace);
 
-                // Service containing navigation, same as INavigationWindow... but without window
-                services.AddSingleton<INavigationService, NavigationService>();
+        applicationBuilder.Logging.AddSentry(options =>
+        {
+            options.Dsn = "https://6d80e3bff4104600a623df0426966e5c@o192382.ingest.sentry.io/4505559666655232";
+        });
 
-                // Main window with navigation
-                services.AddScoped<INavigationWindow, MainWindow>();
-                services.AddScoped<MainWindowViewModel>();
+        var services = applicationBuilder.Services;
 
-                // Views and ViewModels
-                services.AddScoped<DashboardPage>();
-                services.AddScoped<DashboardViewModel>();
-                services.AddScoped<DataPage>();
-                services.AddScoped<DataViewModel>();
-                services.AddScoped<SettingsPage>();
-                services.AddScoped<SettingsViewModel>();
-                services.AddScoped<BrowserSwitchPage>();
-                services.AddScoped<BrowserSwitchViewModel>();
-                services.AddScoped<ManageBrowserMapPage>();
-                services.AddScoped<ManageBrowserMapViewModel>();
+        // App Host
+        services.AddHostedService<ApplicationHostService>();
 
-                services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(App).Assembly));
+        // Page resolver service
+        services.AddSingleton<IPageService, PageService>();
 
-                // Configuration
-                services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));
-            }).Build();
+        // Theme manipulation
+        services.AddSingleton<IThemeService, ThemeService>();
+
+        // TaskBar manipulation
+        services.AddSingleton<ITaskBarService, TaskBarService>();
+
+        // Service containing navigation, same as INavigationWindow... but without window
+        services.AddSingleton<INavigationService, NavigationService>();
+
+        // Main window with navigation
+        services.AddScoped<INavigationWindow, MainWindow>();
+        services.AddScoped<MainWindowViewModel>();
+
+        // Views and ViewModels
+        services.AddScoped<DashboardPage>();
+        services.AddScoped<DashboardViewModel>();
+        services.AddScoped<DataPage>();
+        services.AddScoped<DataViewModel>();
+        services.AddScoped<SettingsPage>();
+        services.AddScoped<SettingsViewModel>();
+        services.AddScoped<BrowserSwitchPage>();
+        services.AddScoped<BrowserSwitchViewModel>();
+        services.AddScoped<ManageBrowserMapPage>();
+        services.AddScoped<ManageBrowserMapViewModel>();
+
+        services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(App).Assembly));
+
+        services.AddLogging(builder => builder
+            .AddSerilog(dispose: true)
+            .SetMinimumLevel(LogLevel.Trace));
+
+        // Configuration
+        services.Configure<AppConfig>(applicationBuilder.Configuration.GetSection(nameof(AppConfig)));
+        _host = applicationBuilder.Build();
 
         await _host.StartAsync();
     }
@@ -106,6 +124,8 @@ public partial class App
         await _host.StopAsync();
 
         _host.Dispose();
+
+        Log.Information("Application exit..");
     }
 
     /// <summary>
@@ -113,6 +133,7 @@ public partial class App
     /// </summary>
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
+        Log.Error(e.Exception, "Unhandled Error: {e}", sender);
         // For more info see https://docs.microsoft.com/en-us/dotnet/api/system.windows.application.dispatcherunhandledexception?view=windowsdesktop-6.0
     }
 }
