@@ -54,7 +54,8 @@ public partial class App
                 Path.Combine(EnvVar.AppDataDir, "Logs/Log-.log"),
                 flushToDiskInterval: TimeSpan.FromSeconds(2),
                 rollingInterval: RollingInterval.Day,
-                restrictedToMinimumLevel: LogEventLevel.Verbose
+                restrictedToMinimumLevel: LogEventLevel.Verbose,
+                shared: true
             )
             .CreateLogger();
 
