@@ -1,6 +1,6 @@
 # configuration file for dotnet-releaser
 artifacts_folder = "artifacts"
-profile = "win"
+profile = "custom"
 
 [msbuild]
 project = "WinToys.sln"
