@@ -3,3 +3,4 @@
 
 # ReSharper properties
 resharper_csharp_max_line_length = 180
+end_of_line = crlf

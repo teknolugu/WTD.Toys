@@ -29,4 +29,4 @@ jobs:
         shell: bash
         run: |
           dotnet tool install --global dotnet-releaser
-          dotnet-releaser run --github-token "${{secrets.GH_PAT}}" dotnet-releaser.toml
+          dotnet-releaser publish --force --force-upload --github-token "${{secrets.GH_PAT_PUB}}" dotnet-releaser.toml

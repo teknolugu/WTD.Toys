@@ -21,3 +21,6 @@ kinds = ["zip"]
 
 [nuget]
 publish = false
+
+[scoop]
+publish = false
