@@ -1,13 +1,37 @@
 {
   "profiles": {
-    "WinToys": {
+    "WinToys App": {
       "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
       "remoteDebugEnabled": false
     },
-    "WinToys BrowserSwitch": {
+    "WinToys - https://yts.mx": {
       "commandName": "Project",
-      "commandLineArgs": "https://uptobox.com/jpg08drap1bq",
+      "commandLineArgs": "https://yts.mx",
       "remoteDebugEnabled": false
+    },
+    "WinToys | uptobox": {
+      "commandName": "Project",
+      "commandLineArgs": "https://uptobox.com",
+      "remoteDebugEnabled": false
+    },
+    "WinToys | remove-browser-map": {
+      "commandName": "Project",
+      "commandLineArgs": "remove-browser-map",
+      "remoteDebugEnabled": false
+    },
+    "WinToys | add-browser-map": {
+      "commandName": "Project",
+      "commandLineArgs": "add-browser-map",
+      "remoteDebugEnabled": false
+    },
+    "WinToys Pack": {
+      "executablePath": "dotnet-releaser",
+      "commandLineArgs": "build --force dotnet-releaser.toml",
+      "workingDirectory": "../../../../",
+      "commandName": "Executable"
     }
   }
 }

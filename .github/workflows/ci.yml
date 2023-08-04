@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    paths-ignore:
+      - 'doc/**'
+      - 'img/**'
+      - 'changelog.md'
+      - 'license.txt'
+      - 'readme.md'
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+    
+      - name: Install .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '7.0.x'
+    
+      - name: Build, Tests, Cover, Pack and Publish (on push tag)
+        shell: bash
+        run: |
+          dotnet tool install --global dotnet-releaser
+          dotnet-releaser run --github-token "${{secrets.GH_PAT}}" dotnet-releaser.toml

@@ -1,0 +1,23 @@
+# configuration file for dotnet-releaser
+artifacts_folder = "artifacts"
+profile = "win"
+
+[msbuild]
+project = "WinToys.sln"
+
+[msbuild.properties]
+PublishTrimmed = false
+PublishSingleFile = true
+SelfContained = false
+PublishReadyToRun = true
+
+[github]
+user = "WinTenDev"
+repo = "WinToys"
+
+[[pack]]
+rid = ["win-x64", "win-x86", "win-arm64"]
+kinds = ["zip"]
+
+[nuget]
+publish = false
