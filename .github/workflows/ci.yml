@@ -25,11 +25,9 @@ jobs:
         with:
           dotnet-version: '7.0.x'
 
-      - name: Setup Release
+      - name: Updating Version
         shell: bash
-        run: |
-          dotnet tool install -g nbgv
-          nbgv prepare-release
+        run: nbgv prepare-release
     
       - name: Build, Tests, Cover, Pack and Publish (on push tag)
         shell: bash
