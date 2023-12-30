@@ -16,17 +16,23 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CliWrap" Version="3.6.4" />
     <PackageReference Include="Config.Net" Version="5.1.5" />
-    <PackageReference Include="MediatR" Version="12.1.1" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
-    <PackageReference Include="MintPlayer.PlatformBrowser" Version="7.0.1" />
+    <PackageReference Include="FileBaseContext" Version="2.0.0" />
+    <PackageReference Include="ManagedWimLib" Version="2.5.3" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+    <PackageReference Include="MintPlayer.PlatformBrowser" Version="8.0.0" />
     <PackageReference Include="Realm" Version="11.2.0" />
-    <PackageReference Include="Sentry.Extensions.Logging" Version="3.34.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
+    <PackageReference Include="Sentry.Extensions.Logging" Version="3.41.3" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-    <PackageReference Include="WPF-UI" Version="2.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <PackageReference Include="SmartExtensionMethods" Version="3.0.6" />
+    <PackageReference Include="Thinktecture.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+    <PackageReference Include="WPF-UI" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="8.101.1.3" />
   </ItemGroup>
 
   <ItemGroup>

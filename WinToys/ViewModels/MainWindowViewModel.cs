@@ -32,7 +32,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     private void InitializeViewModel()
     {
-        ApplicationTitle = "WPF UI - WinToys";
+        ApplicationTitle = "WinToys";
 
         NavigationItems = new ObservableCollection<INavigationControl>
         {

@@ -1,14 +1,13 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Events;
+using WinToys.DataSource.Repository;
+using WinToys.Extensions;
 using WinToys.Models;
 using WinToys.Services;
 using WinToys.ViewModels;
@@ -95,16 +94,23 @@ public partial class App
         // Views and ViewModels
         services.AddScoped<DashboardPage>();
         services.AddScoped<DashboardViewModel>();
+
         services.AddScoped<DataPage>();
         services.AddScoped<DataViewModel>();
+
         services.AddScoped<SettingsPage>();
         services.AddScoped<SettingsViewModel>();
+
         services.AddScoped<BrowserSwitchPage>();
         services.AddScoped<BrowserSwitchViewModel>();
+
         services.AddScoped<ManageBrowserMapPage>();
         services.AddScoped<ManageBrowserMapViewModel>();
 
+        services.AddScoped<BrowserMapRepository>();
+
         services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(App).Assembly));
+        services.AddFileContext();
 
         services.AddLogging(builder => builder
             .AddSerilog(dispose: true)
@@ -112,6 +118,7 @@ public partial class App
 
         // Configuration
         services.Configure<AppConfig>(applicationBuilder.Configuration.GetSection(nameof(AppConfig)));
+
         _host = applicationBuilder.Build();
 
         await _host.StartAsync();

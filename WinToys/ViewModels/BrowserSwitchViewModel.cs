@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using WinToys.DataSource.Entities.Realm;
 using WinToys.DataSource.Repository;
-using WinToys.Models.Enums;
 using WinToys.Utils;
 using WinToys.Views.Pages;
 using Wpf.Ui.Common.Interfaces;
@@ -16,8 +16,9 @@ public partial class BrowserSwitchViewModel : ObservableObject, INavigationAware
 {
     private const string AppName = "WinToys Browser Switcher";
     private const string AppId = "WinToys.BrowserSwitcher";
-    private readonly string _exeName = System.Diagnostics.Process.GetCurrentProcess().MainModule!.FileName;
+    private readonly string _exeName = Process.GetCurrentProcess().MainModule!.FileName;
     private readonly INavigationService _navigationService;
+    private readonly BrowserMapRepository _browserMapRepository;
 
     [ObservableProperty]
     private string _selectedBrowser = string.Empty;
@@ -28,9 +29,10 @@ public partial class BrowserSwitchViewModel : ObservableObject, INavigationAware
     [ObservableProperty]
     private IEnumerable<string> _webBrowsers = new List<string>();
 
-    public BrowserSwitchViewModel(INavigationService navigationService)
+    public BrowserSwitchViewModel(INavigationService navigationService, BrowserMapRepository browserMapRepository)
     {
         _navigationService = navigationService;
+        _browserMapRepository = browserMapRepository;
     }
 
     public void OnNavigatedTo()
@@ -53,30 +55,19 @@ public partial class BrowserSwitchViewModel : ObservableObject, INavigationAware
     }
 
     [RelayCommand]
-    private void RefreshBrowser()
+    private async Task RefreshBrowser()
     {
-        var allBrowsers = PathUtil.FindInstalledBrowser().Select(x => x.ExecutablePath).ToList();
+        await _browserMapRepository.FeedBrowserMap();
 
-        WebBrowsers = allBrowsers.Where(x => !x.Contains(_exeName));
+        WebBrowsers = await _browserMapRepository.GetBrowsers();
 
-        BrowserSwitchRepository.SaveBrowserList(WebBrowsers.Select(x => new BrowserPath()
-        {
-            Path = x,
-            Status = (int)EventStatus.Completed
-        }));
-
-        IsRegistered = allBrowsers.Any(x => x.Contains(_exeName));
+        IsRegistered = WebBrowsers.Any(x => x.Contains(_exeName));
     }
 
     [RelayCommand]
     private void OpenEditPage(string path)
     {
-        BrowserSwitchRepository.SaveBrowserMap(new BrowserPath()
-        {
-            Path = path,
-            Status = (int)EventStatus.InProgress
-        });
-
+        _browserMapRepository.PrepareEditBrowserMap(path);
         _navigationService.Navigate(typeof(ManageBrowserMapPage));
     }
 }

@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MongoDB.Bson;
-using WinToys.DataSource.Entities.Realm;
+using WinToys.DataSource.Entities.EF;
 using WinToys.DataSource.Repository;
 using WinToys.Models.Enums;
 using WinToys.Views.Pages;
@@ -15,25 +15,27 @@ namespace WinToys.ViewModels;
 public partial class ManageBrowserMapViewModel : ObservableObject, INavigationAware
 {
     private readonly INavigationService _navigationService;
+    private readonly BrowserMapRepository _browserMapRepository;
 
     [ObservableProperty]
     private string _selectedBrowser;
 
     [ObservableProperty]
-    private BrowserMap _browserMap;
+    private BrowserMapEntity _browserMap;
 
     [ObservableProperty]
-    private IEnumerable<BrowserMap> _browserMaps;
+    private IEnumerable<BrowserMapEntity> _browserMaps;
 
-    public ManageBrowserMapViewModel(INavigationService navigationService)
+    public ManageBrowserMapViewModel(INavigationService navigationService, BrowserMapRepository browserMapRepository)
     {
         _navigationService = navigationService;
+        _browserMapRepository = browserMapRepository;
     }
 
     public void OnNavigatedTo()
     {
-        SelectedBrowser = BrowserSwitchRepository.GetInProgressBrowser()?.Path;
-        BrowserMaps = BrowserSwitchRepository.GetActiveBrowserMap();
+        SelectedBrowser = _browserMapRepository.GetInProgressBrowser();
+        BrowserMaps = _browserMapRepository.GetActiveBrowserMap();
     }
 
     public void OnNavigatedFrom()
@@ -44,11 +46,11 @@ public partial class ManageBrowserMapViewModel : ObservableObject, INavigationAw
     private void SaveRowEdit(object obj)
     {
         if (obj is DataGridCellEditEndingEventArgs editEndingEventArgs)
-            BrowserSwitchRepository.SaveUrl(new BrowserMap()
+            _browserMapRepository.SaveUrl(new BrowserMapEntity()
             {
                 Path = SelectedBrowser,
                 Url = (editEndingEventArgs.EditingElement as TextBox)!.Text,
-                Status = (int)EventStatus.Completed
+                Status = EventStatus.Completed
             });
 
         if (obj is DataGridRowEditEndingEventArgs rowEditEndingEventArgs)
@@ -57,11 +59,9 @@ public partial class ManageBrowserMapViewModel : ObservableObject, INavigationAw
     }
 
     [RelayCommand]
-    private void DeleteMap(ObjectId? id)
+    private void DeleteMap(string id)
     {
-        if (id == null) return;
-
-        BrowserSwitchRepository.DeleteMapById(id);
+        _browserMapRepository.DeleteMapById(id);
         OnNavigatedTo();
     }
 
