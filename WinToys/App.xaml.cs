@@ -46,29 +46,13 @@ public partial class App
     /// </summary>
     private async void OnStartup(object sender, StartupEventArgs e)
     {
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Verbose()
-            .Enrich.FromLogContext()
-            .WriteTo.File(
-                Path.Combine(EnvVar.AppDataDir, "Logs/Log-.log"),
-                flushToDiskInterval: TimeSpan.FromSeconds(2),
-                rollingInterval: RollingInterval.Day,
-                restrictedToMinimumLevel: LogEventLevel.Verbose,
-                shared: true
-            )
-            .CreateLogger();
-
         var applicationBuilder = Host.CreateApplicationBuilder(e.Args);
 
         applicationBuilder.Environment.EnvironmentName = "Development";
 
         applicationBuilder.Configuration.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location));
-        applicationBuilder.Logging.SetMinimumLevel(LogLevel.Trace);
 
-        applicationBuilder.Logging.AddSentry(options =>
-        {
-            options.Dsn = "https://6d80e3bff4104600a623df0426966e5c@o192382.ingest.sentry.io/4505559666655232";
-        });
+        applicationBuilder.Logging.AddLogging();
 
         var services = applicationBuilder.Services;
 
@@ -112,9 +96,7 @@ public partial class App
         services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(App).Assembly));
         services.AddFileContext();
 
-        services.AddLogging(builder => builder
-            .AddSerilog(dispose: true)
-            .SetMinimumLevel(LogLevel.Trace));
+        services.AddLogger();
 
         // Configuration
         services.Configure<AppConfig>(applicationBuilder.Configuration.GetSection(nameof(AppConfig)));

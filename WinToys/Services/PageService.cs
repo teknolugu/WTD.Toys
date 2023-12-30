@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using Microsoft.Extensions.Logging;
 using Wpf.Ui.Mvvm.Contracts;
 
 namespace WinToys.Services;
@@ -14,12 +15,15 @@ public class PageService : IPageService
     /// </summary>
     private readonly IServiceProvider _serviceProvider;
 
+    private readonly ILogger<PageService> _logger;
+
     /// <summary>
     /// Creates new instance and attaches the <see cref="IServiceProvider"/>.
     /// </summary>
-    public PageService(IServiceProvider serviceProvider)
+    public PageService(IServiceProvider serviceProvider, ILogger<PageService> logger)
     {
         _serviceProvider = serviceProvider;
+        _logger = logger;
     }
 
     /// <inheritdoc />
@@ -34,6 +38,8 @@ public class PageService : IPageService
     /// <inheritdoc />
     public FrameworkElement? GetPage(Type pageType)
     {
+        _logger.LogDebug("Navigating to page: {Page}", pageType.FullName);
+
         if (!typeof(FrameworkElement).IsAssignableFrom(pageType))
             throw new InvalidOperationException("The page should be a WPF control.");
 
